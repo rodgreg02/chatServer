@@ -1,5 +1,6 @@
 public class Main {
-    public static void main(String[] args) {
-        System.out.println("calma");
+    public static void main(String[] args) throws InterruptedException {
+        ServerThread serverThread = new ServerThread();
+        serverThread.start();
     }
 }
