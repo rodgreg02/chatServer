@@ -64,9 +64,15 @@ public class ServerThread extends Thread {
         }
 
         for (Socket s : clients.values()) {
-            PrintWriter printWriter = new PrintWriter(s.getOutputStream(), true);
-            printWriter.println(LocalTime.now() + " " + username + ": " + payload);
-            printWriter.flush();
+            if (!clientSocket.equals(s)) {
+                try {
+                    PrintWriter printWriter = new PrintWriter(s.getOutputStream(), true);
+                    printWriter.println(username+"|"+LocalTime.now());
+                    printWriter.flush();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
