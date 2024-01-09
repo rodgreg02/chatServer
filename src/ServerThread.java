@@ -1,34 +1,26 @@
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ServerThread extends Thread {
-    private Socket clientSocket;
+public class ServerThread {
     private HashMap<String, Socket> clients = new HashMap<>();
+    private HashMap<String, Boolean> isConnected = new HashMap<>();
     private ServerSocket serverSocket;
-    private final int PORT = 9999;
 
-    @Override
-    public void run() {
-        try {
-            serverSocket = new ServerSocket(PORT);
-            while (!serverSocket.isClosed()) {
-                System.out.println("Waiting for connections!");
-                clientSocket = serverSocket.accept();
-                System.out.println("Client " + clientSocket.getInetAddress() + " connected");
+    public void run() throws IOException {
+        serverSocket = new ServerSocket(8666);
 
-                Thread clientThread = new Thread(() -> handleClient(clientSocket, clients));
-                clientThread.start();
-            }
-        } catch (IOException e) {
-            if (serverSocket.isClosed()) {
-                System.out.println("Server socket is closed. Exiting server thread.");
-            } else {
-                e.printStackTrace();
-            }
+        while (true) {
+            System.out.println("Waiting for connections..");
+            Socket clientSocket = serverSocket.accept();
+            System.out.println("Connect:" + clientSocket.getInetAddress());
+
+            Thread clientThread = new Thread(() -> handleClient(clientSocket, clients));
+            clientThread.start();
         }
     }
 
@@ -56,17 +48,22 @@ public class ServerThread extends Thread {
         }
     }
 
-    private void broadcastMessage(Socket senderSocket, String payload) {
+    private void broadcastMessage(Socket senderSocket, String payload) throws IOException {
         String senderUsername = getUsernameBySocket(senderSocket);
-
         for (Socket receiverSocket : clients.values()) {
-            if (!senderSocket.equals(receiverSocket)) {
-                try {
+            if(isConnected.get(senderUsername)) {
+                if (!senderSocket.equals(receiverSocket)) {
                     BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(receiverSocket.getOutputStream()));
-                    writer.write(senderUsername + ": " + payload + " - (" + LocalTime.now() + ")\n");
+                    try {
+                        writer.write(senderUsername + ": " + payload + " - (" + LocalTime.now() + ")\n");
+                        writer.flush();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(receiverSocket.getOutputStream()));
+                    writer.write("You: " + payload);
                     writer.flush();
-                } catch (IOException e) {
-                    e.printStackTrace();
                 }
             }
         }
@@ -75,11 +72,12 @@ public class ServerThread extends Thread {
 
     public void connected(Socket clientSocket, String username) {
         clients.put(username, clientSocket);
+        isConnected.put(username, true);
 
         for (Socket client : clients.values()) {
             try {
                 PrintWriter clientPrintWriter = new PrintWriter(client.getOutputStream());
-                clientPrintWriter.println(username + " entered in the chat.");
+                clientPrintWriter.println("new_user|"+username+LocalTime.now());
                 clientPrintWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
