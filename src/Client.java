@@ -20,7 +20,7 @@ public class Client extends Thread {
     @Override
     public void run() {
         try {
-            clientSocket = new Socket("192.168.176.204", 8666);
+            clientSocket = new Socket("192.168.43.204", 8666);
             printWriter = new PrintWriter(clientSocket.getOutputStream(), true);
             scanner = new Scanner(System.in);
 
@@ -42,7 +42,7 @@ public class Client extends Thread {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
             String message;
             while ((message = bufferedReader.readLine()) != null) {
-                System.out.println("Received: " + message);
+                System.out.println(message);
             }
         } catch (IOException e) {
             e.printStackTrace();

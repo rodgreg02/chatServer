@@ -30,8 +30,10 @@ public class ServerThread {
 
             String message;
             while ((message = bufferedReader.readLine()) != null) {
+                System.out.println(client.getInetAddress() + " wrote a message.");
                 if (message.contains("|")) {
                     Event event = new Event(message);
+                    System.out.println(client.getInetAddress() + " used " + event.getEVENT() + " token with " + event.getPAYLOAD() + " payload.");
 
                     switch (event.getEVENT()) {
                         case "connect" -> connected(client, event.getPAYLOAD());
@@ -50,24 +52,19 @@ public class ServerThread {
 
     private void broadcastMessage(Socket senderSocket, String payload) throws IOException {
         String senderUsername = getUsernameBySocket(senderSocket);
-        for (Socket receiverSocket : clients.values()) {
-            if(isConnected.get(senderUsername)) {
-                if (!senderSocket.equals(receiverSocket)) {
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(receiverSocket.getOutputStream()));
-                    try {
-                        writer.write(senderUsername + ": " + payload + " - (" + LocalTime.now() + ")\n");
-                        writer.flush();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(receiverSocket.getOutputStream()));
-                    writer.write("You: " + payload);
-                    writer.flush();
-                }
+        System.out.println(clients.get(senderUsername + " wrote " + payload));
+        for (Socket client : clients.values()) {
+            try {
+                PrintWriter clientPrintWriter = new PrintWriter(client.getOutputStream());
+                clientPrintWriter.println(senderUsername+" said : "+payload + " at "+LocalTime.now());
+                clientPrintWriter.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }
+
+
 
 
     public void connected(Socket clientSocket, String username) {
@@ -77,7 +74,8 @@ public class ServerThread {
         for (Socket client : clients.values()) {
             try {
                 PrintWriter clientPrintWriter = new PrintWriter(client.getOutputStream());
-                clientPrintWriter.println("new_user|"+username+LocalTime.now());
+                clientPrintWriter.println(username + " is connected.");
+                System.out.println(username + "connected to the chat.");
                 clientPrintWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
