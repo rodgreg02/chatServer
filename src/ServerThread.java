@@ -74,7 +74,7 @@ public class ServerThread {
         for (Socket client : clients.values()) {
             try {
                 PrintWriter clientPrintWriter = new PrintWriter(client.getOutputStream());
-                clientPrintWriter.println(username + " is connected.");
+                clientPrintWriter.println("new_user|"+username+"|"+LocalTime.now());
                 System.out.println(username + " connected to the chat.");
                 clientPrintWriter.flush();
             } catch (IOException e) {
