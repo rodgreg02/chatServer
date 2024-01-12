@@ -21,7 +21,7 @@ public class Client extends Thread {
     @Override
     public void run() {
         try {
-            clientSocket = new Socket("192.168.43.153", 8666);
+            clientSocket = new Socket("192.168.176.204", 8667);
             printWriter = new PrintWriter(clientSocket.getOutputStream(), true);
             scanner = new Scanner(System.in);
 

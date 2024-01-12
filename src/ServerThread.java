@@ -12,7 +12,7 @@ public class ServerThread {
     private ServerSocket serverSocket;
 
     public void run() throws IOException {
-        serverSocket = new ServerSocket(8666);
+        serverSocket = new ServerSocket(8667);
 
         while (true) {
             System.out.println("Waiting for connections..");
@@ -56,7 +56,7 @@ public class ServerThread {
         for (Socket client : clients.values()) {
             try {
                 PrintWriter clientPrintWriter = new PrintWriter(client.getOutputStream());
-                clientPrintWriter.println("new_message|" + senderUsername + "|" +payload+"|"+LocalTime.now());
+                clientPrintWriter.println("new_message|" + LocalTime.now() + "|" + senderUsername + "|" +payload);
                 clientPrintWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
