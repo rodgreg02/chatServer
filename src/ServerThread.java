@@ -52,11 +52,11 @@ public class ServerThread {
 
     private void broadcastMessage(Socket senderSocket, String payload) throws IOException {
         String senderUsername = getUsernameBySocket(senderSocket);
-        System.out.println(clients.get(senderUsername + " wrote " + payload));
+        System.out.println(senderUsername + " wrote " + payload);
         for (Socket client : clients.values()) {
             try {
                 PrintWriter clientPrintWriter = new PrintWriter(client.getOutputStream());
-                clientPrintWriter.println(senderUsername+" said : "+payload + " at "+LocalTime.now());
+                clientPrintWriter.println("new_message|" + senderUsername + "|" +payload+"|"+LocalTime.now());
                 clientPrintWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -75,7 +75,7 @@ public class ServerThread {
             try {
                 PrintWriter clientPrintWriter = new PrintWriter(client.getOutputStream());
                 clientPrintWriter.println(username + " is connected.");
-                System.out.println(username + "connected to the chat.");
+                System.out.println(username + " connected to the chat.");
                 clientPrintWriter.flush();
             } catch (IOException e) {
                 e.printStackTrace();

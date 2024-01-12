@@ -16,11 +16,12 @@ public class Client extends Thread {
     private Socket clientSocket;
     private PrintWriter printWriter;
     private Scanner scanner;
+    private boolean isConnected = false;
 
     @Override
     public void run() {
         try {
-            clientSocket = new Socket("192.168.43.204", 8666);
+            clientSocket = new Socket("192.168.43.153", 8666);
             printWriter = new PrintWriter(clientSocket.getOutputStream(), true);
             scanner = new Scanner(System.in);
 
@@ -28,6 +29,14 @@ public class Client extends Thread {
             readingThread.start();
 
             while (true) {
+                if(!isConnected) {
+                    System.out.print("Username: ");
+                    String firstTime = "connect|" + scanner.nextLine();
+                    printWriter.println(firstTime);
+                    printWriter.flush();
+                    isConnected = true;
+                }
+
                 String message = scanner.nextLine();
                 printWriter.println(message);
                 printWriter.flush();
