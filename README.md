@@ -23,7 +23,7 @@
 
 - Description: Send connect information to all connected clients.
 - Event: `connected`
-- Payload: `message:STRING`, `timestamp:LOCALTIME`
+- Payload: `username:STRING`, `timestamp:LOCALTIME`
 - Receiver: `Client`
 
 ### new_message|timestamp|username|message
