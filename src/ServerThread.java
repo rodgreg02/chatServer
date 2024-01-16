@@ -4,21 +4,27 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalTime;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Scanner;
 
 public class ServerThread {
     private HashMap<String, Socket> clients = new HashMap<>();
     private HashMap<String, Boolean> isConnected = new HashMap<>();
     private ServerSocket serverSocket;
+    private List<Socket> banList;
 
     public void run() throws IOException {
         serverSocket = new ServerSocket(8667);
-
         while (true) {
             System.out.println("Waiting for connections..");
             Socket clientSocket = serverSocket.accept();
-            System.out.println("Connect:" + clientSocket.getInetAddress());
-
+            if(banList.contains(clientSocket)){
+                clientSocket.close();
+            }
+            else {
+                System.out.println("Connect:" + clientSocket.getInetAddress());
+            }
             Thread clientThread = new Thread(() -> handleClient(clientSocket, clients));
             clientThread.start();
         }
@@ -90,5 +96,12 @@ public class ServerThread {
             }
         }
         return null;
+    }
+    private void addToBanList(){
+        Scanner scanner = new Scanner(System.in);
+        String username = scanner.next();
+        if(clients.containsKey(username)){
+            banList.add(clients.get(scanner));
+        }
     }
 }
